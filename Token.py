@@ -2,10 +2,14 @@ from enum import Enum
 
 class Token:
     
-    def __init__(self, token_type, position: int, length: int):
+    def __init__(self, token_type, position: int, line: int, length: int):
         self.token_type = token_type
         self.position = position
+        self.line = line
         self.length = length
+
+    def __str__(self) -> str:
+        return "Token: " + self.token_type + " Line: " + self.line + " Position: " + self.position + " Length: " + self.length 
         
     def get_token_type(self):
         return self.token_type
@@ -43,6 +47,7 @@ class Token:
         GREATER = '>',
         LESS = '<',
         GREATER_OR_EQUAL = '>=',
-        LESS_OR_EQUAL = '<='
+        LESS_OR_EQUAL = '<=',
+        VARIABLE = '[a-zA-Z]'
             
         
