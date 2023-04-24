@@ -52,7 +52,7 @@ class Lexer:
         if self.index >= len(self.input):
             self.current_char = 0
         else:
-            self.current_char = self.input[self.index]
+            self.current_char = self.input[sself.index]
 
     # method that jumps through the white spaces in the input stream
     def skipWhiteSpace(self):
@@ -98,7 +98,7 @@ class Lexer:
             return Token(Token.TokenType.SEMI_COLON, self.line_number, (self.current_char - len(char)), len(char))
 
     def isNotQuote(self):
-        if self.cur_chararacter == "\"":
+        if self.current_char == "\"":
             return False
         else:
             return True
@@ -127,6 +127,6 @@ class Lexer:
                             self.advance()
                         self.tokens.append(Token(Token.TokenType.STRING_LITERAL, (self.current_char - len(cur)), len(cur)))
 
-            print("Error: unexpected character '" + self.currentChar + "' at index " + str(self.index))
-            return Token(TokenType.EOF, "")
-        return Token(TokenType.EOF, "")
+            print("Error: unexpected character '" + self.current_char + "' at index " + str(self.index))
+            return Token(Token.TokenType.EOF, "")
+        return Token(Token.TokenType.EOF, "")
