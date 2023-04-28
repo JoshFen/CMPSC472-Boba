@@ -11,6 +11,7 @@ class Lexer:
         self.line_number = 0
         self.current_char = ''
         self.cur_pos = 0
+        self.string_flag = False
         self.reserved_words = {
             "bubbles": Token.TokenType.BUBBLES,
             "syrup": Token.TokenType.SYRUP,
@@ -68,43 +69,43 @@ class Lexer:
     def isOperator(self, char):
         if char == '+':
             self.advance()
-            return Token(Token.TokenType.PLUS, self.line_number, self.cur_pos, len(char))
+            return Token(Token.TokenType.PLUS, self.line_number, self.cur_pos, len(char), char)
         if char == '=':
             self.advance()
-            return Token(Token.TokenType.EQUAL, self.line_number, self.cur_pos, len(char))
+            return Token(Token.TokenType.EQUAL, self.line_number, self.cur_pos, len(char), char)
         if char == '-':
             self.advance()
-            return Token(Token.TokenType.MINUS, self.line_number, self.cur_pos, len(char))
+            return Token(Token.TokenType.MINUS, self.line_number, self.cur_pos, len(char), char)
         if char == '*':
             self.advance()
-            return Token(Token.TokenType.MULTIPLY, self.line_number, self.cur_pos, len(char))
+            return Token(Token.TokenType.MULTIPLY, self.line_number, self.cur_pos, len(char), char)
         if char == '/':
             self.advance()
-            return Token(Token.TokenType.DIVIDE, self.line_number, self.cur_pos, len(char))
+            return Token(Token.TokenType.DIVIDE, self.line_number, self.cur_pos, len(char), char)
         if char == '(':
             self.advance()
-            return Token(Token.TokenType.LEFT_PARENTHESIS, self.line_number, self.cur_pos, len(char))
+            return Token(Token.TokenType.LEFT_PARENTHESIS, self.line_number, self.cur_pos, len(char), char)
         if char == ')':
             self.advance()
-            return Token(Token.TokenType.RIGHT_PARENTHESIS, self.line_number, self.cur_pos, len(char))
+            return Token(Token.TokenType.RIGHT_PARENTHESIS, self.line_number, self.cur_pos, len(char), char)
         if char == '{':
             self.advance()
-            return Token(Token.TokenType.LEFT_CURLY, self.line_number, self.cur_pos, len(char))
+            return Token(Token.TokenType.LEFT_CURLY, self.line_number, self.cur_pos, len(char), char)
         if char == '}':
             self.advance()
-            return Token(Token.TokenType.RIGHT_CURLY, self.line_number, self.cur_pos, len(char))
+            return Token(Token.TokenType.RIGHT_CURLY, self.line_number, self.cur_pos, len(char), char)
         if char == '[':
             self.advance()
-            return Token(Token.TokenType.LEFT_BRACKET, self.line_number, self.cur_pos, len(char))
+            return Token(Token.TokenType.LEFT_BRACKET, self.line_number, self.cur_pos, len(char), char)
         if char == ']':
             self.advance()
-            return Token(Token.TokenType.RIGHT_BRACKET, self.line_number, self.cur_pos, len(char))
+            return Token(Token.TokenType.RIGHT_BRACKET, self.line_number, self.cur_pos, len(char), char)
         if char == '\"':
             self.advance()
-            return Token(Token.TokenType.QUOTATION, self.line_number, self.cur_pos, len(char))
+            return Token(Token.TokenType.QUOTATION, self.line_number, self.cur_pos, len(char), char)
         if char == ";":
             self.advance()
-            return Token(Token.TokenType.SEMI_COLON, self.line_number, self.cur_pos, len(char))
+            return Token(Token.TokenType.SEMI_COLON, self.line_number, self.cur_pos, len(char), char)
 
     def isNotQuote(self):
         if self.current_char == "\"":
@@ -125,34 +126,37 @@ class Lexer:
                     cur += self.current_char
                     self.advance()
 
-                print(cur)
+                #print(cur)
 
                 if cur in self.reserved_words.keys():
                     self.tokens.append(Token(
-                        self.reserved_words[cur], self.line_number, self.cur_pos, len(cur)))
+                        self.reserved_words[cur], self.line_number, self.cur_pos, len(cur), cur))
                 elif cur.isnumeric():
-                    self.tokens.append(Token(Token.TokenType.INTEGER, self.line_number, self.cur_pos, len(cur)))
+                    self.tokens.append(Token(Token.TokenType.INTEGER, self.line_number, self.cur_pos, len(cur), cur))
                 else:
                     self.tokens.append(Token(
-                        self.reserved_words["variable"], self.line_number, self.cur_pos, len(cur)))
+                        self.reserved_words["variable"], self.line_number, self.cur_pos, len(cur), cur))
             else:
-                print('here',self.current_char, self.line_number)
+                #print('here',self.current_char, self.line_number)
 
                 if (self.index <= len(self.input) and self.input[self.index] == "\""):
                     self.tokens.append(self.isOperator(self.current_char))
-                    self.advance()
-                    while self.isNotQuote():
-                        #cur = ""
-                        #while self.current_char.isalnum():
-                        cur += self.current_char
-                        self.advance()
+                    if not self.string_flag:
+                        #print('first quote')
+                        while self.isNotQuote():
+                            #cur = ""
+                            #while self.current_char.isalnum():
+                            cur += str(self.current_char)
+                            self.advance()
                         
-                    self.tokens.append(
-                            Token(Token.TokenType.STRING_LITERAL, self.line_number, self.cur_pos, len(cur)))
+                        #print(cur)
+                        self.tokens.append(
+                                Token(Token.TokenType.STRING_LITERAL, self.line_number, self.cur_pos, len(cur), cur))
+                        self.string_flag = True
                 else:
                     self.tokens.append(self.isOperator(self.current_char))
 
             # print("Error: unexpected character '" +
             # self.current_char + "' at index " + str(self.index))
             # return Token(Token.TokenType.EOF, self.line_number, len(cur), 0)
-        return Token(Token.TokenType.EOF, self.line_number, len(cur), 0)
+        return Token(Token.TokenType.EOF, self.line_number, len(cur), 0, "\n")

@@ -3,11 +3,12 @@ from enum import Enum
 
 class Token:
 
-    def __init__(self, token_type, line: int, position: int, length: int):
+    def __init__(self, token_type, line: int, position: int, length: int, value: any):
         self.token_type = token_type
         self.position = position
         self.line = line
         self.length = length
+        self.value = value
 
     def __str__(self) -> str:
         return "Token: " + str(self.token_type) + " Line: " + str(self.line) + " Position: " + str(self.position) + " Length: " + str(self.length)
@@ -50,7 +51,7 @@ class Token:
         GREATER_OR_EQUAL = '>=',
         LESS_OR_EQUAL = '<=',
         VARIABLE = '[a-zA-Z]',
-        INTEGER = "\b[0-9]+\b",
+        INTEGER = "/^([+-]?[1-9]\d*|0)$/",
         DOUBLE = "",
-        STRING_LITERAL = "",
+        STRING_LITERAL = "^[a-zA-Z0-9_ ]*$",
         EOF = ""

@@ -9,7 +9,9 @@ with open('boba-example.txt') as f:
         if not line:
             break
         else:
-            print("line",line)
+            #print("line",line)
+            print()
+            print("Line Number: ", line_num)
             tokens = lexer.analyzeLine(line, line_num)
             for token in tokens:
                 print(token)
