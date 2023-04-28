@@ -50,4 +50,7 @@ class Token:
         GREATER_OR_EQUAL = '>=',
         LESS_OR_EQUAL = '<=',
         VARIABLE = '[a-zA-Z]',
+        INTEGER = "\b[0-9]+\b",
+        DOUBLE = "",
+        STRING_LITERAL = "",
         EOF = ""

@@ -10,6 +10,7 @@ class Lexer:
         self.index = 0
         self.line_number = 0
         self.current_char = ''
+        self.cur_pos = 0
         self.reserved_words = {
             "bubbles": Token.TokenType.BUBBLES,
             "syrup": Token.TokenType.SYRUP,
@@ -46,13 +47,14 @@ class Lexer:
         self.line_number = line_number
         self.current_char = self.input[0]
         while self.index < len(self.input):
-            self.getNextToken()
+            self.tokens.append(self.getNextToken())
         return self.tokens
 
     # advances to the next position of a character in the input stream
 
     def advance(self):
         self.index += 1
+        self.cur_pos += 1
         if self.index >= len(self.input):
             self.current_char = 0
         else:
@@ -66,43 +68,43 @@ class Lexer:
     def isOperator(self, char):
         if char == '+':
             self.advance()
-            return Token(Token.TokenType.PLUS, self.line_number, (self.input - len(char)), len(char))
+            return Token(Token.TokenType.PLUS, self.line_number, self.cur_pos, len(char))
         if char == '=':
             self.advance()
-            return Token(Token.TokenType.EQUAL, self.line_number, (self.input - len(char)), len(char))
+            return Token(Token.TokenType.EQUAL, self.line_number, self.cur_pos, len(char))
         if char == '-':
             self.advance()
-            return Token(Token.TokenType.MINUS, self.line_number, (self.input - len(char)), len(char))
+            return Token(Token.TokenType.MINUS, self.line_number, self.cur_pos, len(char))
         if char == '*':
             self.advance()
-            return Token(Token.TokenType.MULTIPLY, self.line_number, (self.input - len(char)), len(char))
+            return Token(Token.TokenType.MULTIPLY, self.line_number, self.cur_pos, len(char))
         if char == '/':
             self.advance()
-            return Token(Token.TokenType.DIVIDE, self.line_number, (self.input - len(char)), len(char))
+            return Token(Token.TokenType.DIVIDE, self.line_number, self.cur_pos, len(char))
         if char == '(':
             self.advance()
-            return Token(Token.TokenType.LEFT_PARENTHESIS, self.line_number, (self.input - len(char)), len(char))
+            return Token(Token.TokenType.LEFT_PARENTHESIS, self.line_number, self.cur_pos, len(char))
         if char == ')':
             self.advance()
-            return Token(Token.TokenType.RIGHT_PARENTHESIS, self.line_number, (self.input - len(char)), len(char))
+            return Token(Token.TokenType.RIGHT_PARENTHESIS, self.line_number, self.cur_pos, len(char))
         if char == '{':
             self.advance()
-            return Token(Token.TokenType.LEFT_CURLY, self.line_number, (self.input - len(char)), len(char))
+            return Token(Token.TokenType.LEFT_CURLY, self.line_number, self.cur_pos, len(char))
         if char == '}':
             self.advance()
-            return Token(Token.TokenType.RIGHT_CURLY, self.line_number, (self.input - len(char)), len(char))
+            return Token(Token.TokenType.RIGHT_CURLY, self.line_number, self.cur_pos, len(char))
         if char == '[':
             self.advance()
-            return Token(Token.TokenType.LEFT_BRACKET, self.line_number, (self.input - len(char)), len(char))
+            return Token(Token.TokenType.LEFT_BRACKET, self.line_number, self.cur_pos, len(char))
         if char == ']':
             self.advance()
-            return Token(Token.TokenType.RIGHT_BRACKET, self.line_number, (self.input - len(char)), len(char))
+            return Token(Token.TokenType.RIGHT_BRACKET, self.line_number, self.cur_pos, len(char))
         if char == '\"':
             self.advance()
-            return Token(Token.TokenType.QUOTATION, self.line_number, (self.input - len(char)), len(char))
+            return Token(Token.TokenType.QUOTATION, self.line_number, self.cur_pos, len(char))
         if char == ";":
             self.advance()
-            return Token(Token.TokenType.SEMI_COLON, self.line_number, (self.input - len(char)), len(char))
+            return Token(Token.TokenType.SEMI_COLON, self.line_number, self.cur_pos, len(char))
 
     def isNotQuote(self):
         if self.current_char == "\"":
@@ -117,31 +119,40 @@ class Lexer:
                 self.skipWhiteSpace()
                 continue
 
-            if self.current_char.isalpha():
+            if self.current_char.isalnum(): # was isalpha
                 #cur = ""
                 while self.current_char.isalnum():
                     cur += self.current_char
                     self.advance()
 
                 print(cur)
+
                 if cur in self.reserved_words.keys():
                     self.tokens.append(Token(
-                        self.reserved_words[cur], self.line_number, (len(self.input) - len(cur)), len(cur)))
+                        self.reserved_words[cur], self.line_number, self.cur_pos, len(cur)))
+                elif cur.isnumeric():
+                    self.tokens.append(Token(Token.TokenType.INTEGER, self.line_number, self.cur_pos, len(cur)))
                 else:
                     self.tokens.append(Token(
-                        self.reserved_words["variable"], self.line_number, (len(self.input) - len(cur)), len(cur)))
+                        self.reserved_words["variable"], self.line_number, self.cur_pos, len(cur)))
             else:
-                self.tokens.append(self.isOperator(self.current_char))
-                if (self.index <= len(self.input) and self.input[self.index] == "\""):
-                    while self.isNotQuote():
-                       #cur = ""
-                        while self.current_char.isalnum():
-                            cur += self.current_char
-                            self.advance()
-                        self.tokens.append(
-                            Token(Token.TokenType.STRING_LITERAL, (self.current_char - len(cur)), len(cur)))
+                print('here',self.current_char, self.line_number)
 
-           # print("Error: unexpected character '" +
-                 # self.current_char + "' at index " + str(self.index))
+                if (self.index <= len(self.input) and self.input[self.index] == "\""):
+                    self.tokens.append(self.isOperator(self.current_char))
+                    self.advance()
+                    while self.isNotQuote():
+                        #cur = ""
+                        #while self.current_char.isalnum():
+                        cur += self.current_char
+                        self.advance()
+                        
+                    self.tokens.append(
+                            Token(Token.TokenType.STRING_LITERAL, self.line_number, self.cur_pos, len(cur)))
+                else:
+                    self.tokens.append(self.isOperator(self.current_char))
+
+            # print("Error: unexpected character '" +
+            # self.current_char + "' at index " + str(self.index))
             # return Token(Token.TokenType.EOF, self.line_number, len(cur), 0)
         return Token(Token.TokenType.EOF, self.line_number, len(cur), 0)
