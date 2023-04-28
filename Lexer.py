@@ -153,6 +153,18 @@ class Lexer:
                         self.tokens.append(
                                 Token(Token.TokenType.STRING_LITERAL, self.line_number, self.cur_pos, len(cur), cur))
                         self.string_flag = True
+                elif (self.index <= len(self.input) and self.input[self.index] == "="):
+            
+                    if (self.input[self.index + 1] == "="):
+                        print(self.input[self.index + 1])
+                        cur = self.current_char
+                        self.advance()
+                        cur += self.current_char
+                        
+                        self.tokens.append(Token(Token.TokenType.CONDITIONAL_EQUAL, self.line_number, self.cur_pos, len(cur), cur))
+                        self.advance()
+                    else: 
+                        self.tokens.append(self.isOperator(self.current_char))
                 else:
                     self.tokens.append(self.isOperator(self.current_char))
 
