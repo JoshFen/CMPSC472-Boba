@@ -2,5 +2,6 @@ bubbles myBubble = withoutBubbles;
 condition (myBubble == withoutBubbles) {
     syrup mySyrup = 5 + 6;
     flavor myFlavor = "peach";
-}
+    tea(mySyrup);
+};
 tea ("This is our first print");
